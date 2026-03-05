@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import type { ChangeEvent, FormEvent } from 'react';
 import './App.css';
 
 const services = [
@@ -66,7 +68,54 @@ const insights = [
   'Local search trends show “builder Tauranga”, “architect Mount”, and “wellness studio Papamoa” dominating—our layouts prioritise those keyword clusters.',
 ];
 
+const initialForm = {
+  name: '',
+  email: '',
+  phone: '',
+  budget: '',
+  message: '',
+};
+
+type FormFields = typeof initialForm;
+
+type FormStatus = 'idle' | 'sending' | 'success' | 'error';
+
 function App() {
+  const [form, setForm] = useState<FormFields>(initialForm);
+  const [status, setStatus] = useState<FormStatus>('idle');
+  const [error, setError] = useState<string | null>(null);
+
+  const updateField = (field: keyof FormFields) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setForm((prev) => ({ ...prev, [field]: event.target.value }));
+  };
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!form.name || !form.email || !form.message) {
+      setError('Name, email, and project notes are required.');
+      return;
+    }
+    setStatus('sending');
+    setError(null);
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to send');
+      }
+      setStatus('success');
+      setForm(initialForm);
+    } catch (err) {
+      console.error('[lead-form] submit failed', err);
+      setStatus('error');
+      setError('Could not send message. Please try again or call us.');
+    }
+  };
+
   return (
     <div className="page">
       <header className="hero">
@@ -85,7 +134,7 @@ function App() {
           </p>
           <div className="hero-actions">
             <a className="button primary" href="mailto:hello@harbourandco.nz">Book a discovery call</a>
-            <a className="button ghost" href="#portfolio">See Tauranga launches</a>
+            <a className="button ghost" href="#lead-form">Send a project brief</a>
           </div>
           <div className="stats">
             {stats.map((stat) => (
@@ -184,10 +233,54 @@ function App() {
         </ul>
       </section>
 
+      <section className="lead-form" id="lead-form">
+        <div>
+          <p className="eyebrow">Project intake</p>
+          <h2>Tell us what you’re building.</h2>
+          <p>
+            We’ll respond from <strong>miles@andrewstribe.co.nz</strong> within two business days with a scoped plan,
+            transparent budget, and suggested kickoff date.
+          </p>
+        </div>
+        <form className="lead-form-card" onSubmit={handleSubmit}>
+          <label>
+            Full name*
+            <input type="text" value={form.name} onChange={updateField('name')} placeholder="Jordan McKenzie" required />
+          </label>
+          <label>
+            Email*
+            <input type="email" value={form.email} onChange={updateField('email')} placeholder="you@company.co.nz" required />
+          </label>
+          <label>
+            Phone / WhatsApp
+            <input type="tel" value={form.phone} onChange={updateField('phone')} placeholder="+64" />
+          </label>
+          <label>
+            Budget range
+            <input type="text" value={form.budget} onChange={updateField('budget')} placeholder="$10k – $25k" />
+          </label>
+          <label className="full">
+            Project notes*
+            <textarea
+              value={form.message}
+              onChange={updateField('message')}
+              placeholder="Current site, goals, deadline, examples"
+              required
+            />
+          </label>
+          {error && <p className="form-error">{error}</p>}
+          {status === 'success' && <p className="form-success">Thanks! We’ll reply shortly.</p>}
+          <button className="button primary" type="submit" disabled={status === 'sending'}>
+            {status === 'sending' ? 'Sending…' : 'Send proposal request'}
+          </button>
+          <small>We’ll email a transcript to you instantly.</small>
+        </form>
+      </section>
+
       <section className="cta" id="contact">
         <div>
           <p className="eyebrow">Let’s build</p>
-          <h2>Ready for a Tauranga site that feels bespoke, fast, and future-proof?</h2>
+          <h2>Prefer to talk first?</h2>
           <p>Send your goals, inspo links, and deadline. We’ll reply with a scoped plan within two business days.</p>
         </div>
         <div className="cta-card">

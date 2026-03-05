@@ -304,3 +304,61 @@ footer {
     align-items: flex-start;
   }
 }
+
+.lead-form {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 1.75rem;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.03);
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.lead-form-card {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.lead-form-card label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+  gap: 0.35rem;
+}
+
+.lead-form-card label.full {
+  grid-column: 1 / -1;
+}
+
+.lead-form-card input,
+.lead-form-card textarea {
+  border-radius: 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(5, 10, 20, 0.45);
+  padding: 0.8rem 1rem;
+  color: white;
+  font-family: inherit;
+}
+
+.lead-form-card textarea {
+  min-height: 140px;
+  resize: vertical;
+}
+
+.lead-form-card small {
+  grid-column: 1 / -1;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.form-error {
+  grid-column: 1 / -1;
+  color: #ff8f8f;
+}
+
+.form-success {
+  grid-column: 1 / -1;
+  color: #90ffcf;
+}
